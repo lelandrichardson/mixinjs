@@ -1,0 +1,28 @@
+{
+  "name": "mixinjs",
+  "version": "1.0.0",
+  "description": "A small library to create factories with useful mixins-based inheritence. Inspired by React's createClass method.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lelandrichardson/mixinjs.git"
+  },
+  "keywords": [
+    "mixin",
+    "prototype",
+    "prototypal",
+    "inheritence",
+    "oop",
+    "factory",
+    "polymorphism"
+  ],
+  "author": "Leland Richardson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lelandrichardson/mixinjs/issues"
+  },
+  "homepage": "https://github.com/lelandrichardson/mixinjs"
+}
