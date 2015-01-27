@@ -24,5 +24,12 @@
   "bugs": {
     "url": "https://github.com/lelandrichardson/mixinjs/issues"
   },
-  "homepage": "https://github.com/lelandrichardson/mixinjs"
+  "homepage": "https://github.com/lelandrichardson/mixinjs",
+  "dependencies": {
+    "browserify": "^8.1.1",
+    "gulp": "^3.8.10",
+    "gulp-concat": "^2.4.3",
+    "jasmine": "^2.1.1",
+    "sinon": "^1.12.2"
+  }
 }
