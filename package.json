@@ -26,13 +26,18 @@
   },
   "homepage": "https://github.com/lelandrichardson/mixinjs",
   "dependencies": {
+    "object-assign": "^2.0.0"
+  },
+  "devDependencies": {
     "browserify": "^8.1.1",
     "chai": "^1.10.0",
     "gulp": "^3.8.10",
     "gulp-concat": "^2.4.3",
     "gulp-mocha": "^2.0.0",
     "jasmine": "^2.1.1",
-    "object-assign": "^2.0.0",
-    "sinon": "^1.12.2"
+    "sinon": "^1.12.2",
+    "uglify": "^0.1.1",
+    "uglifyify": "^3.0.1",
+    "vinyl-source-stream": "^1.0.0"
   }
 }
