@@ -9,7 +9,6 @@ describe("mixins", function () {
     var fn1 = function(){return 1;};
     var fn2 = function(){return 2;};
     var fn3 = function(){return 3;};
-    var fn4 = function(){return 4;};
 
     var mixin1 = {
         fn: fn1

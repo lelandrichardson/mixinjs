@@ -16,36 +16,11 @@ function bindAutoBindMethods ( obj ) {
 }
 
 var factory = function ( classPolicy, base ) {
-    var Constructor = function () {
-        //if (!(this instanceof Constructor)) {
-        //    return Constructor.call(this, arguments);
-        //}
-
-        // Wire up auto-binding
-        if (this.__autoBind) {
-            bindAutoBindMethods(this);
-        }
-
-        if (this.initialize) {
-            this.initialize.call(this, arguments);
-        }
-    };
-
-    mixing.mixSpecIntoComponent(Constructor, base, classPolicy);
-
-    return Constructor;
-};
-
-var factoryFactory = function ( classPolicy, base ) {
 
     var policy = assign({}, coreMixin, classPolicy);
 
     return function ( spec ) {
         var Constructor = function () {
-            //if (!(this instanceof Constructor)) {
-            //    return Constructor.call(this, arguments);
-            //}
-
             // Wire up auto-binding
             if (this.__autoBind) {
                 bindAutoBindMethods(this);
@@ -60,7 +35,6 @@ var factoryFactory = function ( classPolicy, base ) {
 
         return Constructor;
     };
-
 };
 
-module.exports = factoryFactory;
+module.exports = factory;
