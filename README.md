@@ -5,13 +5,13 @@ A small library to create powerful factories with useful mixins-based inheritenc
 ```javascript
 var MyLib.classFactory = mixin({
 
-    getInitialStat: mixin.policy.DEFINE_MANY_MERGED,
+    getInitialStat: mixin.policy.method.MERGE_RESULT,
 
-    render: mixin.policy.DEFINE_ONCE,
+    render: mixin.policy.method.REQUIRED_ONCE,
 
-    onStart: mixin.policy.DEFINE_MANY,
+    onStart: mixin.policy.method.DEFINE_MANY,
 
-    updateComponent: mixin.policy.OVERRIDE_BASE
+    updateComponent: mixin.policy.method.OVERRIDABLE
 
 },{
     initialize: function () {
@@ -45,7 +45,7 @@ React.createClass = mixin({
 
     contextTypes: mixin.policy.object.MERGE,
 
-    childContextTypes: mixin.policy.method.DEFINE_MANY,
+    childContextTypes: mixin.policy.object.MERGE,
 
     getDefaultProps: mixin.policy.method.MERGE_RESULT,
 
@@ -96,6 +96,9 @@ Mixinjs has the following function signature:
 
     var factory = mixin(policy [, baseImplementation]);
 
+
+## Policies
+
 `policy` is an object with prop names and their corresponding policy declarations.  The following policy
 declarations are available by default:
 
@@ -109,6 +112,56 @@ Policy | Behavior
 `mixin.policy.object.REQUIRED_ONCE` | The corresponding property can only be defined once. Multiple definitions will throw.
 `mixin.policy.object.MERGE` | The corresponding property can be defined as many times as you want, and each definition will be merged together.
 `mixin.policy.object.OVERRIDABLE` | The corresponding property can be defined as many times as you want, but only the bottom-most definition will be used.
+
+
+## Add your own
+
+You can add your own policy by making the following call:
+
+    mixin.addPolicy("MY_CUSTOM_POLICY", function (Constructor, propName, prop, classPolicy) {
+        // do what you need to do here. Default behavior could be emulated as:
+        Constructor.prototype[propName] = prop;
+    });
+
+## Default Policy Behaviors
+
+By default, each class factory created using mixin has the following policy defined:
+
+    {
+        /**
+         * An array of Mixin objects to include when defining your class. Recursive.
+         *
+         * @type {array}
+         * @optional
+         */
+        mixins: "MIXINS",
+
+        /**
+         * An object containing properties and methods that should be defined on
+         * the class's constructor instead of its prototype (static methods).
+         *
+         * @type {object}
+         * @optional
+         */
+        statics: "STATICS",
+
+        /**
+         * A function that can be used to initialize an instance
+         *
+         * @type {function}
+         * @optional
+         */
+        initialize: mixin.policy.method.DEFINE_MANY,
+
+        /**
+         * Mainly for debugging purposes. This is the displayName applied to the constructor function.
+         *
+         * @type {String}
+         * @optional
+         */
+        displayName: "CONSTRUCTOR_DISPLAY_NAME"
+    }
+
 
 
 You can use an `initialize` method to any mixin or implementation and it will be used on instance initialization.
