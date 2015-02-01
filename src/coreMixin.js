@@ -7,7 +7,7 @@ var coreMixin = {
      * @type {array}
      * @optional
      */
-    mixins: policy.DEFINE_MANY,
+    mixins: "MIXINS",
 
     /**
      * An object containing properties and methods that should be defined on
@@ -16,7 +16,7 @@ var coreMixin = {
      * @type {object}
      * @optional
      */
-    statics: policy.DEFINE_MANY,
+    statics: "STATICS",
 
     /**
      * A function that can be used to initialize an instance
@@ -24,7 +24,7 @@ var coreMixin = {
      * @type {function}
      * @optional
      */
-    init: policy.DEFINE_MANY,
+    initialize: policy.method.DEFINE_MANY,
 
     /**
      * Mainly for debugging purposes. This is the name applied to the constructor function.
@@ -32,7 +32,7 @@ var coreMixin = {
      * @type {String}
      * @optional
      */
-    displayName: policy.DEFINE_ONCE
+    displayName: "CONSTRUCTOR_DISPLAY_NAME"
 };
 
 module.exports = coreMixin;

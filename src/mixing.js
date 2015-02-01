@@ -2,7 +2,9 @@ var existential = require('./existential');
 var warn = require('./warn');
 var policy = require('./policy');
 var handlers = require('./handlers');
+var assign = require('object-assign');
 var MIXINS_KEY = 'mixins';
+
 /**
  * Merge two objects, but throw if both contain the same key.
  *
@@ -11,7 +13,7 @@ var MIXINS_KEY = 'mixins';
  * @return {object} one after it has been mutated to contain everything in two.
  */
 function mergeIntoWithNoDuplicateKeys ( one, two ) {
-    if (existential.isObject(one) && existential.isObject(two)) {
+    if (!existential.isObject(one) || !existential.isObject(two)) {
         warn('cannot merge non-objects');
     }
 
@@ -65,45 +67,16 @@ function createMergedResultFunction ( one, two ) {
     };
 }
 
-function validateTypeDef ( Constructor, typeDef, location ) {
-    for (var propName in typeDef) {
-        if (typeDef.hasOwnProperty(propName)) {
-            if (!existential.isFunction(typeDef[propName])) {
-                warn((Constructor.displayName || 'Class') + " was expecting a function for '" + propName + "'");
-            }
-        }
-    }
-}
-
-function validateMethodOverride ( /* this has changed */ baseInterface, proto, name ) {
-    var specPolicy = baseInterface.hasOwnProperty(name) ? baseInterface[name] : null;
-
-    // Disallow overriding of base class methods unless explicitly allowed.
-    if (baseInterface.hasOwnProperty(name)) {
-        if (specPolicy === policy.OVERRIDE_BASE) {
-            warn("You are attempting to override '" + name + "' from your class specification.");
-        }
-    }
-
-    // Disallow defining methods more than once unless explicitly allowed.
-    if (proto.hasOwnProperty(name)) {
-        if (specPolicy === policy.DEFINE_MANY ||
-            specPolicy === policy.DEFINE_MANY_MERGED) {
-            warn("You are attempting to override '" + name + "' more than once. This may be due to a mixin.");
-        }
-    }
-}
-
 /**
  * Mixin helper which handles policy validation and reserved
  * specification keys when building React classses.
  */
-function mixSpecIntoComponent(Constructor, spec, classPolicy) {
+function mixSpecIntoComponent ( Constructor, spec, classPolicy ) {
     if (!spec) {
         return;
     }
 
-    if (!existential.isFunction(spec)) {
+    if (existential.isFunction(spec)) {
         warn('A function is being passed in as a mixin. Expecting an object');
     }
 
@@ -122,76 +95,125 @@ function mixSpecIntoComponent(Constructor, spec, classPolicy) {
         }
 
         if (name === MIXINS_KEY) {
-            // We have already handled mixins in a special case above
+            // We have already handled mixins in the special case above
             continue;
         }
 
         var property = spec[name];
         var policyName = classPolicy[name];
 
-        validateMethodOverride(proto, name);
+        //validateMethodOverride(proto, name);
 
         if (policyName && handlers.hasOwnProperty(policyName)) {
-            // since there is a handler defined, we need to mixin according
-            // to the policy.
-            handlers[policyName](Constructor, name, property, classPolicy);
+
+            if (!handlers.hasOwnProperty(policyName)) {
+                warn("no handler defined for policy '" + policyName + "'");
+            } else {
+                // since there is a handler defined, we need to mixin according
+                // to the policy.
+                handlers[policyName](Constructor, name, property, classPolicy);
+            }
         } else {
             // Setup methods on prototype
             var isAlreadyDefined = proto.hasOwnProperty(name);
             var isFunction = existential.isFunction(property);
             var shouldAutoBind =
-                isFunction &&
-                !policyName &&
-                !isAlreadyDefined;
+                isFunction && !policyName && !isAlreadyDefined;
 
             if (shouldAutoBind) {
                 if (!proto.__autoBind) {
                     proto.__autoBind = {};
                 }
                 proto.__autoBind[name] = property;
-                proto[name] = property;
-            } else if (isAlreadyDefined) {
-                var specPolicy = ReactClassInterface[name];
-
-                // For methods which are defined more than once, call the existing
-                // methods before calling the new property, merging if appropriate.
-                if (specPolicy === SpecPolicy.DEFINE_MANY_MERGED) {
-                    proto[name] = createMergedResultFunction(proto[name], property);
-                } else if (specPolicy === SpecPolicy.DEFINE_MANY) {
-                    proto[name] = createChainedFunction(proto[name], property);
-                }
-            } else {
-                proto[name] = property;
-
-                // Add verbose displayName to the function, which helps when looking
-                // at profiling tools.
-                //if (isFunction && spec.displayName) {
-                //    proto[name].displayName = spec.displayName + '_' + name;
-                //}
             }
+
+            proto[name] = property;
         }
     }
 }
 
-function mixStaticSpecIntoComponent(Constructor, statics) {
+function mixStaticSpecIntoComponent ( Constructor, statics ) {
     if (!statics) {
         return;
     }
     for (var name in statics) {
         if (statics.hasOwnProperty(name)) {
-            var property = statics[name];
-            Constructor[name] = property;
+            Constructor[name] = statics[name];
         }
     }
 }
 
+function add ( constant, handler ) {
+    handlers[constant] = handler;
+}
+
+add("CONSTRUCTOR_DISPLAY_NAME", function ( Constructor, propName, prop ) {
+    Constructor.displayName = prop;
+});
+
+add("MIXINS", function ( Constructor, propName, prop, classPolicy ) {
+    if (prop) {
+        for (var i = 0; i < prop.length; i++) {
+            mixSpecIntoComponent(Constructor, prop[i], classPolicy);
+        }
+    }
+});
+
+add("STATICS", function ( Constructor, key, value ) {
+    mixStaticSpecIntoComponent(Constructor, value);
+});
+
+add(policy.method.REQUIRED_ONCE, function ( Constructor, key, value ) {
+    if (Constructor.prototype[key]) {
+        throw new Error("policy does not allow '" + key + "' to be defined more than once");
+    } else {
+        Constructor.prototype[key] = value;
+    }
+});
+
+add(policy.method.MERGE_RESULT, function ( Constructor, methodName, method ) {
+    if (Constructor.prototype[methodName]) {
+        Constructor.prototype[methodName] = createMergedResultFunction(
+            Constructor.prototype[methodName],
+            method
+        );
+    } else {
+        Constructor.prototype[methodName] = method;
+    }
+});
+
+add(policy.method.OVERRIDABLE, function ( Constructor, methodName, method ) {
+    Constructor.prototype[methodName] = method;
+});
+
+add(policy.method.DEFINE_MANY, function ( Constructor, methodName, method ) {
+    if (Constructor.prototype[methodName]) {
+        Constructor.prototype[methodName] = createChainedFunction(
+            Constructor.prototype[methodName],
+            method
+        );
+    } else {
+        Constructor.prototype[methodName] = method;
+    }
+});
+
+add(policy.object.MERGE, function ( Constructor, propName, prop ) {
+    Constructor.prototype[propName] = assign({}, Constructor.prototype[propName], prop);
+});
+
+add(policy.object.OVERRIDABLE, function ( Constructor, propName, prop ) {
+    Constructor.prototype[propName] = prop;
+});
+
+add(policy.object.REQUIRED_ONCE, function ( Constructor, key, value ) {
+    if (Constructor.prototype[key]) {
+        throw new Error("policy does not allow '" + key + "' to be defined more than once");
+    } else {
+        Constructor.prototype[key] = value;
+    }
+});
+
 
 module.exports = {
-    mergeIntoWithNoDuplicateKeys: mergeIntoWithNoDuplicateKeys,
-    createChainedFunction: createChainedFunction,
-    createMergedResultFunction: createMergedResultFunction,
-    mixStaticSpecIntoComponent: mixStaticSpecIntoComponent,
-    mixSpecIntoComponent: mixSpecIntoComponent,
-    validateTypeDef: validateTypeDef,
-    validateMethodOverride: validateMethodOverride
+    mixSpecIntoComponent: mixSpecIntoComponent
 };
