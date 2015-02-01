@@ -94,7 +94,7 @@ React.createClass = mixin({
 
 Mixinjs has the following function signature:
 
-    var factory = mixin(policy, baseImplementation);
+    var factory = mixin(policy [, baseImplementation]);
 
 `policy` is an object with prop names and their corresponding policy declarations.  The following policy
 declarations are available by default:
@@ -112,3 +112,6 @@ definition will be used.
 `mixin.policy.object.MERGE` | The corresponding property can be defined as many times as you want, and each definition will be merged together.
 `mixin.policy.object.OVERRIDABLE` | The corresponding property can be defined as many times as you want, but only the bottom-most
 definition will be used.
+
+
+You can use an `initialize` method to any mixin or implementation and it will be used on instance initialization.
