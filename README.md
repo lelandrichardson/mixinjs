@@ -2,23 +2,24 @@
 
 A small library to create powerful factories with useful mixins-based inheritence. Inspired by React.js's createClass factory method.
 
+```javascript
+var MyLib.classFactory = mixin({
 
-    var MyLib.classFactory = mixin({
+    getInitialStat: mixin.policy.DEFINE_MANY_MERGED,
 
-        getInitialStat: mixin.policy.DEFINE_MANY_MERGED,
+    render: mixin.policy.DEFINE_ONCE,
 
-        render: mixin.policy.DEFINE_ONCE,
+    onStart: mixin.policy.DEFINE_MANY,
 
-        onStart: mixin.policy.DEFINE_MANY,
+    updateComponent: mixin.policy.OVERRIDE_BASE
 
-        updateComponent: mixin.policy.OVERRIDE_BASE
+},{
+    initialize: function () {
 
-    },{
-        initialize: function () {
+    },
 
-        },
-
-    });
+});
+```
 
 
 This library is heavily inspired by the behavior of React's `createClass` method. This factory method has subtle
@@ -27,68 +28,69 @@ others such as `getInitialState()` and `propTypes`.
 
 Using the mixinjs library, we could create a factory method very similar to React's `createClass` method as shown below:
 
+```javascript
+var mixin = require('mixin');
 
-    var mixin = require('mixin');
+var React = {};
 
-    var React = {};
+React.createClass = mixin({
 
-    React.createClass = mixin({
+    // this is provided by default
+    //mixins: mixin.policy.method.DEFINE_MANY,
 
-        // this is provided by default
-        //mixins: mixin.policy.method.DEFINE_MANY,
+    // this is provided by default
+    //statics: mixin.policy.method.DEFINE_MANY,
 
-        // this is provided by default
-        //statics: mixin.policy.method.DEFINE_MANY,
+    propTypes: mixin.policy.object.MERGE,
 
-        propTypes: mixin.policy.object.MERGE,
+    contextTypes: mixin.policy.object.MERGE,
 
-        contextTypes: mixin.policy.object.MERGE,
+    childContextTypes: mixin.policy.method.DEFINE_MANY,
 
-        childContextTypes: mixin.policy.method.DEFINE_MANY,
+    getDefaultProps: mixin.policy.method.MERGE_RESULT,
 
-        getDefaultProps: mixin.policy.method.MERGE_RESULT,
+    getInitialState: mixin.policy.method.MERGE_RESULT,
 
-        getInitialState: mixin.policy.method.MERGE_RESULT,
+    getChildContext: mixin.policy.method.MERGE_RESULT,
 
-        getChildContext: mixin.policy.method.MERGE_RESULT,
+    render: mixin.policy.method.REQUIRED_ONCE,
 
-        render: mixin.policy.method.REQUIRED_ONCE,
+    componentWillMount: mixin.policy.method.DEFINE_MANY,
 
-        componentWillMount: mixin.policy.method.DEFINE_MANY,
+    componentDidMount: mixin.policy.method.DEFINE_MANY,
 
-        componentDidMount: mixin.policy.method.DEFINE_MANY,
+    componentWillReceiveProps: mixin.policy.method.DEFINE_MANY,
 
-        componentWillReceiveProps: mixin.policy.method.DEFINE_MANY,
+    shouldComponentUpdate: mixin.policy.method.REQUIRED_ONCE,
 
-        shouldComponentUpdate: mixin.policy.method.REQUIRED_ONCE,
+    componentWillUpdate: mixin.policy.method.DEFINE_MANY,
 
-        componentWillUpdate: mixin.policy.method.DEFINE_MANY,
+    componentDidUpdate: mixin.policy.method.DEFINE_MANY,
 
-        componentDidUpdate: mixin.policy.method.DEFINE_MANY,
+    componentWillUnmount: mixin.policy.method.DEFINE_MANY,
 
-        componentWillUnmount: mixin.policy.method.DEFINE_MANY,
+    updateComponent: mixin.policy.method.OVERRIDABLE
 
-        updateComponent: mixin.policy.method.OVERRIDABLE
+}, {
+    initialize: function (props, context) {
+        this.props = props;
+        this.context = context;
+        this.state = this.getInitialState();
+    },
 
-    }, {
-        initialize: function (props, context) {
-            this.props = props;
-            this.context = context;
-            this.state = this.getInitialState();
-        },
+    isMounted: function () {
 
-        isMounted: function () {
+    },
 
-        },
+    setProps: function (newProps, callback) {
 
-        setProps: function (newProps, callback) {
+    },
 
-        },
+    replaceProps: function (newProps, callback) {
 
-        replaceProps: function (newProps, callback) {
-
-        }
-    });
+    }
+});
+```
 
 Mixinjs has the following function signature:
 
