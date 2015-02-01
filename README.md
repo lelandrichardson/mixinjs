@@ -103,16 +103,12 @@ declarations are available by default:
 Policy | Behavior
 ------ | --------
 `mixin.policy.method.REQUIRED_ONCE` | The corresponding method can only be implemented once. Multiple definitions will throw
-`mixin.policy.method.DEFINE_MANY` | The corresponding method can be defined as many times as you want. When calling the
-method, each definition will be invoked sequentially.
-`mixin.policy.method.MERGE_RESULT` | The corresponding method can be defined as many times as you want. It is expected
-that the method definitions return objects, and the results of each are merged together.
-`mixin.policy.method.OVERRIDABLE` | The corresponding method can be defined as many times as you want, but only the bottom-most
-definition will be used.
+`mixin.policy.method.DEFINE_MANY` | The corresponding method can be defined as many times as you want. When calling the method, each definition will be invoked sequentially.
+`mixin.policy.method.MERGE_RESULT` | The corresponding method can be defined as many times as you want. It is expected that the method definitions return objects, and the results of each are merged together.
+`mixin.policy.method.OVERRIDABLE` | The corresponding method can be defined as many times as you want, but only the bottom-most definition will be used.
 `mixin.policy.object.REQUIRED_ONCE` | The corresponding property can only be defined once. Multiple definitions will throw.
 `mixin.policy.object.MERGE` | The corresponding property can be defined as many times as you want, and each definition will be merged together.
-`mixin.policy.object.OVERRIDABLE` | The corresponding property can be defined as many times as you want, but only the bottom-most
-definition will be used.
+`mixin.policy.object.OVERRIDABLE` | The corresponding property can be defined as many times as you want, but only the bottom-most definition will be used.
 
 
 You can use an `initialize` method to any mixin or implementation and it will be used on instance initialization.
