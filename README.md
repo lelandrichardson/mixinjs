@@ -101,6 +101,7 @@ declarations are available by default:
 
 
 Policy | Behavior
+------ | --------
 `mixin.policy.method.REQUIRED_ONCE` | The corresponding method can only be implemented once. Multiple definitions will throw
 `mixin.policy.method.DEFINE_MANY` | The corresponding method can be defined as many times as you want. When calling the
 method, each definition will be invoked sequentially.
