@@ -5,7 +5,7 @@ A small library to create powerful factories with useful mixins-based inheritenc
 ```javascript
 var MyLib.classFactory = mixin({
 
-    getInitialStat: mixin.policy.method.MERGE_RESULT,
+    getInitialState: mixin.policy.method.MERGE_RESULT,
 
     render: mixin.policy.method.REQUIRED_ONCE,
 
